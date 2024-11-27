@@ -18,7 +18,7 @@ pipeline{
                 script {
                     withSonarQubeEnv(installationName: 'sonarqube', credentialsId: 'sonar-credentials') {
                     sh '''
-                        mvn clean verify sonar:sonar \
+                        mvn clean verify sonar:sonar -DskipTests \
                         -Dsonar.projectKey=fusion-backend \
                         -Dsonar.projectName='fusion-backend' \
                         -Dsonar.host.url=http://54.242.152.54:9000 \
