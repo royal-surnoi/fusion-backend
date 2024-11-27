@@ -4,7 +4,7 @@ pipeline{
         maven 'maven-3.9.8'
     }
     environment {
-        docker_registry = 'iamroyalreddy/fusion'
+        docker_registry = 'iamroyalreddy/fusion-be'
         DOCKERHUB_CREDENTIALS = credentials('docker-credentials')
     }
     options {
