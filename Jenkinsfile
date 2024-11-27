@@ -34,7 +34,7 @@ pipeline{
         // }
         stage('containerization') {
             steps {
-                sh 'docker build -t $docker_registry:$GIT_COMMIT .'
+                sh 'docker build -t $docker_registry:v1 .'
             }
         }
 
