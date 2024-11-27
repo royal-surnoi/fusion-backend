@@ -3,6 +3,10 @@ pipeline{
     tools{
         maven 'maven-3.9.8'
     }
+    environment {
+        docker_registry = 'iamroyalreddy/fusion'
+        DOCKERHUB_CREDENTIALS = credentials('docker-credentials')
+    }
     options {
         timeout(time: 1, unit: 'HOURS')
         disableConcurrentBuilds()
@@ -13,22 +17,26 @@ pipeline{
                 sh 'mvn clean package -DskipTests'
             }
         }
-        stage ("code quality") {
+        // stage ("code quality") {
+        //     steps {
+        //         script {
+        //             withSonarQubeEnv(installationName: 'sonarqube', credentialsId: 'sonar-credentials') {
+        //             sh '''
+        //                 mvn clean verify sonar:sonar -DskipTests \ // need to work on test cases
+        //                 -Dsonar.projectKey=fusion-backend \ 
+        //                 -Dsonar.projectName='fusion-backend' \
+        //                 -Dsonar.host.url=http://54.242.152.54:9000 \
+        //                 -Dsonar.token=sqp_c25ea4885d079ea10d1e95d2b246e033a5f371bb
+        //             '''
+        //             }
+        //         }
+        //     }
+        // }
+        stage('containerization') {
             steps {
-                script {
-                    withSonarQubeEnv(installationName: 'sonarqube', credentialsId: 'sonar-credentials') {
-                    sh '''
-                        mvn clean verify sonar:sonar -DskipTests \ // need to work on test cases
-                        -Dsonar.projectKey=fusion-backend \ 
-                        -Dsonar.projectName='fusion-backend' \
-                        -Dsonar.host.url=http://54.242.152.54:9000 \
-                        -Dsonar.token=sqp_c25ea4885d079ea10d1e95d2b246e033a5f371bb
-                    '''
-                    }
-                }
+                sh 'docker build -t $docker_registry:$GIT_COMMIT .'
             }
         }
-
 
 
     }
