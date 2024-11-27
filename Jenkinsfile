@@ -13,6 +13,24 @@ pipeline{
                 sh 'mvn clean install -DskipTests'
             }
         }
+        stage ("code quality") {
+            steps {
+                script {
+                    withSonarQubeEnv(installationName: 'sonarqube', 
+                    credentialsId: 'sonar-credentials	') {
+                    sh '''
+                        mvn clean verify sonar:sonar \
+                        -Dsonar.projectKey=fusion-backend \
+                        -Dsonar.projectName='fusion-backend' \
+                        -Dsonar.host.url=http://54.242.152.54:9000 \
+                    '''
+                    }
+                }
+            }
+        }
+
+
+
     }
 
     post { 
