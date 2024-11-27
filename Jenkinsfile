@@ -10,14 +10,14 @@ pipeline{
     stages{
         stage('Build and Package'){
             steps{
-                sh 'mvn clean install -DskipTests'
+                sh 'mvn clean install'
             }
         }
         stage ("code quality") {
             steps {
                 script {
                     withSonarQubeEnv(installationName: 'sonarqube', 
-                    credentialsId: 'sonar-credentials	') {
+                    credentialsId: 'sonar-credentials') {
                     sh '''
                         mvn clean verify sonar:sonar \
                         -Dsonar.projectKey=fusion-backend \
