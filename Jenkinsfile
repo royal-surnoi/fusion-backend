@@ -16,13 +16,13 @@ pipeline{
         stage ("code quality") {
             steps {
                 script {
-                    withSonarQubeEnv(installationName: 'sonarqube', 
-                    credentialsId: 'sonar-credentials') {
+                    withSonarQubeEnv(installationName: 'sonarqube', credentialsId: 'sonar-credentials') {
                     sh '''
                         mvn clean verify sonar:sonar \
                         -Dsonar.projectKey=fusion-backend \
                         -Dsonar.projectName='fusion-backend' \
                         -Dsonar.host.url=http://54.242.152.54:9000 \
+                        -Dsonar.token=sqp_c25ea4885d079ea10d1e95d2b246e033a5f371bb
                     '''
                     }
                 }
