@@ -10,7 +10,7 @@ pipeline{
     stages{
         stage('Build and Package'){
             steps{
-                sh 'mvn clean install -DskipTests'
+                sh 'mvn clean install -Dmaven.test.skip=true'
             }
         }
         stage ("code quality") {
