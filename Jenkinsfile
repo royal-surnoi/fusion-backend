@@ -40,7 +40,7 @@ pipeline{
                         
                         if [ ! -z "$EXISTING_IMAGE" ]; then
                             echo "Image '$IMAGE_NAME' found. Removing..."
-                            sudo docker rmi -f $EXISTING_IMAGE
+                            docker rmi -f $EXISTING_IMAGE
                             echo "Image is removed."
                         else
                             echo "No existing image found for '$IMAGE_NAME'."
