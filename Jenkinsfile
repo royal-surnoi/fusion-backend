@@ -36,7 +36,7 @@ pipeline{
             steps {
                 sh '''
                     docker rm -f `docker ps -a`
-                    docker rmi `docker images`
+                    docker rmi -f `docker images`
                     docker build -t $docker_registry:$GIT_COMMIT .
                 '''
             }
