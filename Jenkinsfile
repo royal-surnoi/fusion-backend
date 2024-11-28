@@ -104,7 +104,7 @@ pipeline{
     post { 
     always { 
         echo "\033[34mJob completed. Cleaning up workspace...\033[0m"
-        deleteDir()
+        // deleteDir()
     }
     success {
         echo "\033[33mPipeline completed successfully. Performing success actions...\033[0m"
