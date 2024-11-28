@@ -37,11 +37,10 @@ pipeline{
                 script{
                     sh '''
                         EXISTING_IMAGE=$(docker images -q $docker_registry)
-                        
                         if [ ! -z "$EXISTING_IMAGE" ]; then
-                            echo "Image '$IMAGE_NAME' found. Removing..."
+                            echo "previous build Image '$IMAGE_NAME' found. Removing..."
                             docker rmi -f $EXISTING_IMAGE
-                            echo "Image is removed."
+                            echo "previous build image is removed."
                         else
                             echo "No existing image found for '$IMAGE_NAME'."
                         fi
@@ -50,12 +49,12 @@ pipeline{
                 }
             }
         }
-        // stage('Publish Docker Image') {
-        //     steps {
-        //         sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-        //         sh "docker push $docker_registry:$GIT_COMMIT"
-        //     }       
-        // }
+        stage('Publish Docker Image') {
+            steps {
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                sh "docker push $docker_registry:$GIT_COMMIT"
+            }       
+        }
 
     }
 
