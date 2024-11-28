@@ -17,6 +17,7 @@ pipeline{
                 sh 'mvn clean package -DskipTests'
             }
         }
+
         // stage ("code quality") {
         //     steps {
         //         script {
@@ -32,6 +33,7 @@ pipeline{
         //         }
         //     }
         // }
+
         stage('containerization') {
             steps {
                 script{
@@ -49,12 +51,30 @@ pipeline{
                 }
             }
         }
-        stage('Publish Docker Image') {
+
+        stage('Trivy Vulnerability Scanner') {
             steps {
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-                sh "docker push $docker_registry:$GIT_COMMIT"
-            }       
-        }
+                sh  ''' 
+                    trivy image $docker_registry:$GIT_COMMIT \
+                        --severity LOW,MEDIUM,HIGH \
+                        --exit-code 0 \
+                        --quiet \
+                        --format json -o trivy-image-MEDIUM-results.json
+
+                    trivy image $docker_registry:$GIT_COMMIT \
+                        --severity CRITICAL \
+                        --exit-code 1 \
+                        --quiet \
+                        --format json -o trivy-image-CRITICAL-results.json
+                '''
+            }
+
+        // stage('Publish Docker Image') {
+        //     steps {
+        //         sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+        //         sh "docker push $docker_registry:$GIT_COMMIT"
+        //     }       
+        // }
 
     }
 
