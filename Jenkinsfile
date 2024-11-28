@@ -36,19 +36,23 @@ pipeline{
             steps {
                 script{
                     sh '''
-                        docker rm -f `docker ps -a`
-                        docker rmi -f `docker images`
-                        docker build -t $docker_registry:$GIT_COMMIT .
+                        if sudo docker ps -a | grep -q "fusion-be" ; then
+                            echo "Container found. Stopping..."
+                            sudo docker stop "fusion-be" && sudo docker rm "fusion-be"
+                            echo "Container stopped and removed."
+                        else
+                            docker build -t $docker_registry:$GIT_COMMIT .
+                        fi
                     '''
                 }
             }
         }
-        stage('Publish Docker Image') {
-            steps {
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-                sh "docker push $docker_registry:$GIT_COMMIT"
-            }       
-        }
+        // stage('Publish Docker Image') {
+        //     steps {
+        //         sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+        //         sh "docker push $docker_registry:$GIT_COMMIT"
+        //     }       
+        // }
 
     }
 
