@@ -36,10 +36,14 @@ pipeline{
             steps {
                 script{
                     sh '''
-                        if sudo docker images | grep -q "fusion-be" ; then
-                            echo "Image  found. Removing..."
-                            sudo docker rmi "fusion-be"
-                            echo "image is removed."
+                        EXISTING_IMAGE=$(sudo docker images -q $docker_registry)
+                        
+                        if [ ! -z "$EXISTING_IMAGE" ]; then
+                            echo "Image '$IMAGE_NAME' found. Removing..."
+                            sudo docker rmi -f $EXISTING_IMAGE
+                            echo "Image is removed."
+                        else
+                            echo "No existing image found for '$IMAGE_NAME'."
                         fi
                         docker build -t $docker_registry:$GIT_COMMIT .
                     '''
