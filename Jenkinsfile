@@ -91,39 +91,49 @@ pipeline{
             }
         }
 
+        stage('Publish Docker Image') {
+            steps {
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                sh "docker push $docker_registry:$GIT_COMMIT"
+            }       
+        }
 
-        // stage('Publish Docker Image') {
-        //     steps {
-        //         sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-        //         sh "docker push $docker_registry:$GIT_COMMIT"
-        //     }       
-        // }
+        stage('Deploy - AWS EC2') {
+            steps {
+                sh 'sleep 5s'
+            }   
+        }
 
+        stage('Integration Testing - AWS EC2') {
+            steps {
+               sh 'sleep 5s'
+            }
+        }
     }
 
     post { 
-    always { 
-        echo "\033[34mJob completed. Cleaning up workspace...\033[0m"
-        // deleteDir()
-        publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-CRITICAL-results.html', reportName: 'Trivy Image Critical Vul Report', reportTitles: '', useWrapperFileDirectly: true])
-        publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-MEDIUM-results.html', reportName: 'Trivy Image Medium Vul Report', reportTitles: '', useWrapperFileDirectly: true])
+        always { 
+            echo "\033[34mJob completed. Cleaning up workspace...\033[0m"
+            publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-CRITICAL-results.html', reportName: 'Trivy Image Critical Vul Report', reportTitles: '', useWrapperFileDirectly: true])
 
+            publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-MEDIUM-results.html', reportName: 'Trivy Image Medium Vul Report', reportTitles: '', useWrapperFileDirectly: true])
+            deleteDir()
+        }
+        success {
+            echo "\033[33mPipeline completed successfully. Performing success actions...\033[0m"
+            // Add additional actions here if needed, like sending success notifications
+        }
+        failure { 
+            echo "\033[35mPipeline failed. Triggering failure response...\033[0m"
+            // send notification
+        }
+        unstable {
+            echo "\033[34mPipeline marked as unstable. Reviewing issues...\033[0m"
+            // Send notification or take action for unstable builds, if needed
+        }
+        aborted {
+            echo "\033[33mPipeline was aborted. Clearing any partial artifacts...\033[0m"
+            // Any specific actions for aborted jobs
+        }
     }
-    success {
-        echo "\033[33mPipeline completed successfully. Performing success actions...\033[0m"
-        // Add additional actions here if needed, like sending success notifications
-    }
-    failure { 
-        echo "\033[35mPipeline failed. Triggering failure response...\033[0m"
-        // send notification
-    }
-    unstable {
-        echo "\033[34mPipeline marked as unstable. Reviewing issues...\033[0m"
-        // Send notification or take action for unstable builds, if needed
-    }
-    aborted {
-        echo "\033[33mPipeline was aborted. Clearing any partial artifacts...\033[0m"
-        // Any specific actions for aborted jobs
-    }
-}
 }

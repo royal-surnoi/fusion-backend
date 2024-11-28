@@ -1,5 +1,5 @@
 FROM alpine/java:21-jre
-RUN apk update && apk upgrade libexpat
+
 WORKDIR /home/app/
 
 # Copy all .jar files to the working directory
