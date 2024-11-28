@@ -36,10 +36,10 @@ pipeline{
             steps {
                 script{
                     sh '''
-                        if sudo docker ps -a | grep -q "fusion-be" ; then
-                            echo "Container found. Stopping..."
-                            sudo docker stop "fusion-be" && sudo docker rm "fusion-be"
-                            echo "Container stopped and removed."
+                        if sudo docker images | grep -q "fusion-be" ; then
+                            echo "Image  found. Removing..."
+                            sudo docker rmi "fusion-be"
+                            echo "image is removed."
                         fi
                         docker build -t $docker_registry:$GIT_COMMIT .
                     '''
