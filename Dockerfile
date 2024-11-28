@@ -1,9 +1,4 @@
-FROM alpine/java:21-jre
-
+FROM alpine/java:21-jdk
 WORKDIR /home/app/
-
-# Copy all .jar files to the working directory
-COPY ./target/*.jar /home/app/
-
-# Use a shell to dynamically find the .jar file and run it
-CMD sh -c 'java -jar /home/app/$(ls /home/app/ | grep .jar)'
+COPY ./target/fusionIq-0.0.1-SNAPSHOT.jar /home/app/
+CMD ["nohup", "java" , "-jar" , "fusionIq-0.0.1-SNAPSHOT.jar","&"]
