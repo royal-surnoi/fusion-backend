@@ -36,7 +36,7 @@ pipeline{
             steps {
                 script{
                     sh '''
-                        EXISTING_IMAGE=$(sudo docker images -q $docker_registry)
+                        EXISTING_IMAGE=$(docker images -q $docker_registry)
                         
                         if [ ! -z "$EXISTING_IMAGE" ]; then
                             echo "Image '$IMAGE_NAME' found. Removing..."
