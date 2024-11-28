@@ -34,10 +34,13 @@ pipeline{
         // }
         stage('containerization') {
             steps {
-                sh '''
-                    docker rmi -f `docker images`
-                    docker build -t $docker_registry:$GIT_COMMIT .
-                '''
+                script{
+                    sh '''
+                        docker rm -f `docker ps -a`s
+                        docker rmi -f `docker images`
+                        docker build -t $docker_registry:$GIT_COMMIT .
+                    '''
+                }
             }
         }
         stage('Publish Docker Image') {
