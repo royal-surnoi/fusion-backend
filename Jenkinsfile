@@ -91,7 +91,6 @@ pipeline{
                     '''
                 }
             }
-        } 
         // stage('Publish Docker Image') {
         //     steps {
         //         sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
@@ -105,9 +104,6 @@ pipeline{
     always { 
         echo "\033[34mJob completed. Cleaning up workspace...\033[0m"
         deleteDir()
-        publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-CRITICAL-results.html', reportName: 'Trivy Image Critical Vul Report', reportTitles: '', useWrapperFileDirectly: true])
-        publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-MEDIUM-results.html', reportName: 'Trivy Image Medium Vul Report', reportTitles: '', useWrapperFileDirectly: true])
-
     }
     success {
         echo "\033[33mPipeline completed successfully. Performing success actions...\033[0m"
