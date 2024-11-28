@@ -40,9 +40,8 @@ pipeline{
                             echo "Container found. Stopping..."
                             sudo docker stop "fusion-be" && sudo docker rm "fusion-be"
                             echo "Container stopped and removed."
-                        else
-                            docker build -t $docker_registry:$GIT_COMMIT .
                         fi
+                        docker build -t $docker_registry:$GIT_COMMIT .
                     '''
                 }
             }
