@@ -9,7 +9,7 @@ pipeline{
         DEV_INSTANCE_IP= ''
     }
     options {
-        timeout(time: 1, unit: 'HOURS')
+        // timeout(time: 1, unit: 'HOURS')
         disableConcurrentBuilds()
     }
     stages{
@@ -26,7 +26,7 @@ pipeline{
                     --out \'./\'  
                     --format \'ALL\' 
                     --disableYarnAudit \
-                    --prettyPrint''', odcInstallation: 'OWASP-DepCheck-11'
+                    --prettyPrint''', odcInstallation: 'OWASP-DepCheck-10'
 
                 // dependencyCheckPublisher failedTotalCritical: 1, pattern: 'dependency-check-report.xml', stopBuild: false
             }
