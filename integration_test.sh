@@ -11,7 +11,7 @@ echo "PublichIPAddress - "$PublichIPAddress
 if [[ "$PublichIPAddress" != '' ]]; then
     http_code=$(curl -s -o /dev/null -w "%{http_code}" http://$PublichIPAddress:8080/user/all)
         echo "http_code - "$http_code
-
+    sleep 10s
     if [[ "$http_code" -eq 200 ]]; 
         then
             echo "HTTP Status Code is 200 Tests Passed"
