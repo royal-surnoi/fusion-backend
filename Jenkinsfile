@@ -151,32 +151,32 @@ pipeline{
         }
     }
 
-    post { 
-        always { 
-            junit allowEmptyResults: true, stdioRetention: '', testResults: 'dependency-check-junit.xml' 
-            junit allowEmptyResults: true, stdioRetention: '', testResults: 'trivy-image-CRITICAL-results.xml'
-            junit allowEmptyResults: true, stdioRetention: '', testResults: 'trivy-image-MEDIUM-results.xml'            
-            publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'dependency-check-jenkins.html', reportName: 'Dependency Check HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-            publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-CRITICAL-results.html', reportName: 'Trivy Image Critical Vul Report', reportTitles: '', useWrapperFileDirectly: true])
-            publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-MEDIUM-results.html', reportName: 'Trivy Image Medium Vul Report', reportTitles: '', useWrapperFileDirectly: true])
-            // echo "\033[34mJob completed. Cleaning up workspace...\033[0m"
-            // deleteDir()
+        post { 
+            always { 
+                junit allowEmptyResults: true, stdioRetention: '', testResults: 'dependency-check-junit.xml' 
+                junit allowEmptyResults: true, stdioRetention: '', testResults: 'trivy-image-CRITICAL-results.xml'
+                junit allowEmptyResults: true, stdioRetention: '', testResults: 'trivy-image-MEDIUM-results.xml'            
+                publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'dependency-check-jenkins.html', reportName: 'Dependency Check HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-CRITICAL-results.html', reportName: 'Trivy Image Critical Vul Report', reportTitles: '', useWrapperFileDirectly: true])
+                publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-MEDIUM-results.html', reportName: 'Trivy Image Medium Vul Report', reportTitles: '', useWrapperFileDirectly: true])
+                // echo "\033[34mJob completed. Cleaning up workspace...\033[0m"
+                // deleteDir()
+            }
+            success {
+                echo "\033[33mPipeline completed successfully. Performing success actions...\033[0m"
+                // Add additional actions here if needed, like sending success notifications
+            }
+            failure { 
+                echo "\033[35mPipeline failed. Triggering failure response...\033[0m"
+                // send notification
+            }
+            unstable {
+                echo "\033[34mPipeline marked as unstable. Reviewing issues...\033[0m"
+                // Send notification or take action for unstable builds, if needed
+            }
+            aborted {
+                echo "\033[33mPipeline was aborted. Clearing any partial artifacts...\033[0m"
+                // Any specific actions for aborted jobs
+            }
         }
-        success {
-            echo "\033[33mPipeline completed successfully. Performing success actions...\033[0m"
-            // Add additional actions here if needed, like sending success notifications
-        }
-        failure { 
-            echo "\033[35mPipeline failed. Triggering failure response...\033[0m"
-            // send notification
-        }
-        unstable {
-            echo "\033[34mPipeline marked as unstable. Reviewing issues...\033[0m"
-            // Send notification or take action for unstable builds, if needed
-        }
-        aborted {
-            echo "\033[33mPipeline was aborted. Clearing any partial artifacts...\033[0m"
-            // Any specific actions for aborted jobs
-        }
-    }
 }
