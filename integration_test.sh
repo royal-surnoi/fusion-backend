@@ -14,7 +14,7 @@ if [[ "$PublichIPAddress" != '' ]]; then
 
     echo "Making HTTP request..."
     http_code=$(curl -x "" -s -o /dev/null -w "%{http_code}"  "http://$PublicIPAddress:8080/user/all")
-    sleep 10s
+    sleep 30s
     echo "http_code - "$http_code
     
     if [[ "$http_code" -eq 200 ]]; 
