@@ -116,7 +116,7 @@ pipeline{
 
         stage('Integration Testing - AWS EC2') {
             steps {
-               sh 'sleep 30s'
+               sh 'sleep 230s'
                withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
                     sh  '''
                         chmod 777 integration_test.sh
