@@ -42,12 +42,10 @@ public class FusionIqApplication {
 
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**")
-						.allowedOrigins("http://fusioniq.s3-website.ap-south-1.amazonaws.com")
+						.allowedOrigins("http://54.162.84.143:80")
 						.allowedMethods("GET", "POST", "PUT", "DELETE","PATCH")
 						.allowedHeaders("*");
-
 			}
-
 		};
 	}
 }
