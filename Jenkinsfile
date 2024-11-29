@@ -116,7 +116,12 @@ pipeline{
 
         stage('Integration Testing - AWS EC2') {
             steps {
-               sh 'sleep 5s'
+               sh 'sleep 15s'
+               withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
+                    sh  '''
+                        sh integration_test.sh
+                    '''
+                }
             }
         }
     }
