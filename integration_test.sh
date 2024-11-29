@@ -4,7 +4,7 @@ echo "Intergation test........"
 aws --version
 
 Data=$(aws ec2 describe-instances)
-echo "Data - "$Data
+# echo "Data - "$Data
 PublichIPAddress=$(aws ec2 describe-instances | jq -r ' .Reservations[].Instances[] | select(.Tags[].Value == "dev-deploy") | .PublicIpAddress')
 echo "PublichIPAddress - "$PublichIPAddress
 

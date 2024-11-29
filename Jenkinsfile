@@ -119,7 +119,8 @@ pipeline{
                sh 'sleep 15s'
                withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
                     sh  '''
-                        sh integration_test.sh
+                        chmod 777 integration_test.sh
+                        ./integration_test.sh
                     '''
                 }
             }
