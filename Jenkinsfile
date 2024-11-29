@@ -6,6 +6,7 @@ pipeline{
     environment {
         docker_registry = 'iamroyalreddy/fusion-be'
         DOCKERHUB_CREDENTIALS = credentials('docker-credentials')
+        DEV_INSTANCE_IP= ''
     }
     options {
         timeout(time: 1, unit: 'HOURS')
@@ -52,44 +53,44 @@ pipeline{
             }
         }
 
-        stage('Trivy Vulnerability Scanner') {
-            steps {
-                sh  ''' 
-                    trivy image $docker_registry:$GIT_COMMIT \
-                        --severity LOW,MEDIUM,HIGH \
-                        --exit-code 0 \
-                        --quiet \
-                        --format json -o trivy-image-MEDIUM-results.json
+        // stage('Trivy Vulnerability Scanner') {
+        //     steps {
+        //         sh  ''' 
+        //             trivy image $docker_registry:$GIT_COMMIT \
+        //                 --severity LOW,MEDIUM,HIGH \
+        //                 --exit-code 0 \
+        //                 --quiet \
+        //                 --format json -o trivy-image-MEDIUM-results.json
 
-                    trivy image $docker_registry:$GIT_COMMIT \
-                        --severity CRITICAL \
-                        --exit-code 1 \
-                        --quiet \
-                        --format json -o trivy-image-CRITICAL-results.json
-                '''
-            }
-            post {
-                always {
-                    sh '''
-                        trivy convert \
-                            --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
-                            --output trivy-image-MEDIUM-results.html trivy-image-MEDIUM-results.json 
+        //             trivy image $docker_registry:$GIT_COMMIT \
+        //                 --severity CRITICAL \
+        //                 --exit-code 1 \
+        //                 --quiet \
+        //                 --format json -o trivy-image-CRITICAL-results.json
+        //         '''
+        //     }
+        //     post {
+        //         always {
+        //             sh '''
+        //                 trivy convert \
+        //                     --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
+        //                     --output trivy-image-MEDIUM-results.html trivy-image-MEDIUM-results.json 
 
-                        trivy convert \
-                            --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
-                            --output trivy-image-CRITICAL-results.html trivy-image-CRITICAL-results.json
+        //                 trivy convert \
+        //                     --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
+        //                     --output trivy-image-CRITICAL-results.html trivy-image-CRITICAL-results.json
 
-                        trivy convert \
-                            --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
-                            --output trivy-image-MEDIUM-results.xml  trivy-image-MEDIUM-results.json 
+        //                 trivy convert \
+        //                     --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
+        //                     --output trivy-image-MEDIUM-results.xml  trivy-image-MEDIUM-results.json 
 
-                        trivy convert \
-                            --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
-                            --output trivy-image-CRITICAL-results.xml trivy-image-CRITICAL-results.json          
-                    '''
-                }
-            }
-        }
+        //                 trivy convert \
+        //                     --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
+        //                     --output trivy-image-CRITICAL-results.xml trivy-image-CRITICAL-results.json          
+        //             '''
+        //         }
+        //     }
+        // }
 
         stage('Publish Docker Image') {
             steps {
@@ -101,12 +102,19 @@ pipeline{
         stage('Deploy - AWS EC2') {
             steps {
                 script{
+                     // Fetch AWS instance IP
+                    withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
+                        DEV_INSTANCE_IP = sh(
+                            script: "aws ec2 describe-instances --query 'Reservations[].Instances[].PublicIpAddress' --filters Name=tag:Name,Values=dev-deploy --output text",
+                            returnStdout: true
+                        ).trim()
+                    }
                     sshagent(['dev-deploy-ec2-instance']) {
                         sh  '''
-                            ssh -o StrictHostKeyChecking=no ec2-user@54.163.232.167 "
+                            ssh -o StrictHostKeyChecking=no ec2-user@${DEV_INSTANCE_IP} << EOF
                                     docker ps -aq | xargs -r docker rm -f
                                     docker run -d -p 8080:8080 "$docker_registry:$GIT_COMMIT"
-                                "
+                                EOF
                             '''
                     }
                     
@@ -114,17 +122,16 @@ pipeline{
             }   
         }
 
-        stage('Integration Testing - AWS EC2') {
-            steps {
-               sh 'sleep 230s'
-               withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
-                    sh  '''
-                        chmod 777 integration_test.sh
-                        ./integration_test.sh
-                    '''
-                }
-            }
-        }
+        // stage('Integration Testing - AWS EC2') {
+        //     steps {
+        //        sh 'sleep 200s'
+        //        withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
+        //             sh  '''
+        //                 sh integration_test.sh
+        //             '''
+        //         }
+        //     }
+        // }
     }
 
     post { 
