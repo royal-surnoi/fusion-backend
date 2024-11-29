@@ -7,16 +7,9 @@ Data=$(aws ec2 describe-instances)
 # echo "Data - "$Data
 PublichIPAddress=$(aws ec2 describe-instances | jq -r ' .Reservations[].Instances[] | select(.Tags[].Value == "dev-deploy") | .PublicIpAddress')
 echo "PublichIPAddress - "$PublichIPAddress
-echo "URL"
-echo "http://$PublichIPAddress:8080/user/find/1"
 if [[ "$PublichIPAddress" != '' ]]; then
     echo "Testing connectivity to $PublichIPAddress"
     ping -c 4 $PublichIPAddress || { echo "Ping failed. Check network access."; exit 1; }
-    echo "before curl"
-    data=$(curl http://$PublichIPAddress:8080/user/find/1)
-    
-    echo "$data"
-    echo "after curl"
     echo "Making HTTP request..."
     http_code=$(curl -x "" -s -o /dev/null -w "%{http_code}"  http://$PublichIPAddress:8080/user/find/1)
     sleep 30s
