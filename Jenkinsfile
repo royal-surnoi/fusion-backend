@@ -19,7 +19,7 @@ pipeline{
             }
         }
 
-        // stage ("code quality") {
+        // stage ("SAST - SonarQube") {
         //     steps {
         //         script {
         //             withSonarQubeEnv(installationName: 'sonarqube', credentialsId: 'sonar-credentials') {
@@ -53,44 +53,44 @@ pipeline{
             }
         }
 
-        // stage('Trivy Vulnerability Scanner') {
-        //     steps {
-        //         sh  ''' 
-        //             trivy image $docker_registry:$GIT_COMMIT \
-        //                 --severity LOW,MEDIUM,HIGH \
-        //                 --exit-code 0 \
-        //                 --quiet \
-        //                 --format json -o trivy-image-MEDIUM-results.json
+        stage('Trivy Vulnerability Scanner') {
+            steps {
+                sh  ''' 
+                    trivy image $docker_registry:$GIT_COMMIT \
+                        --severity LOW,MEDIUM,HIGH \
+                        --exit-code 0 \
+                        --quiet \
+                        --format json -o trivy-image-MEDIUM-results.json
 
-        //             trivy image $docker_registry:$GIT_COMMIT \
-        //                 --severity CRITICAL \
-        //                 --exit-code 1 \
-        //                 --quiet \
-        //                 --format json -o trivy-image-CRITICAL-results.json
-        //         '''
-        //     }
-        //     post {
-        //         always {
-        //             sh '''
-        //                 trivy convert \
-        //                     --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
-        //                     --output trivy-image-MEDIUM-results.html trivy-image-MEDIUM-results.json 
+                    trivy image $docker_registry:$GIT_COMMIT \
+                        --severity CRITICAL \
+                        --exit-code 1 \
+                        --quiet \
+                        --format json -o trivy-image-CRITICAL-results.json
+                '''
+            }
+            post {
+                always {
+                    sh '''
+                        trivy convert \
+                            --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
+                            --output trivy-image-MEDIUM-results.html trivy-image-MEDIUM-results.json 
 
-        //                 trivy convert \
-        //                     --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
-        //                     --output trivy-image-CRITICAL-results.html trivy-image-CRITICAL-results.json
+                        trivy convert \
+                            --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
+                            --output trivy-image-CRITICAL-results.html trivy-image-CRITICAL-results.json
 
-        //                 trivy convert \
-        //                     --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
-        //                     --output trivy-image-MEDIUM-results.xml  trivy-image-MEDIUM-results.json 
+                        trivy convert \
+                            --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
+                            --output trivy-image-MEDIUM-results.xml  trivy-image-MEDIUM-results.json 
 
-        //                 trivy convert \
-        //                     --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
-        //                     --output trivy-image-CRITICAL-results.xml trivy-image-CRITICAL-results.json          
-        //             '''
-        //         }
-        //     }
-        // }
+                        trivy convert \
+                            --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
+                            --output trivy-image-CRITICAL-results.xml trivy-image-CRITICAL-results.json          
+                    '''
+                }
+            }
+        }
 
         stage('Publish Docker Image') {
             steps {
@@ -124,16 +124,16 @@ pipeline{
             }   
         }
 
-        // stage('Integration Testing - AWS EC2') {
-        //     steps {
-        //        sh 'sleep 200s'
-        //        withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
-        //             sh  '''
-        //                 sh integration_test.sh
-        //             '''
-        //         }
-        //     }
-        // }
+        stage('Integration Testing - AWS EC2') {
+            steps {
+               sh 'sleep 200s'
+               withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
+                    sh  '''
+                        sh integration_test.sh
+                    '''
+                }
+            }
+        }
     }
 
     post { 
