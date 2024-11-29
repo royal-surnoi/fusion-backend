@@ -11,9 +11,9 @@ echo "PublichIPAddress - "$PublichIPAddress
 if [[ "$PublichIPAddress" != '' ]]; then
     echo "Testing connectivity to $PublichIPAddress"
     ping -c 4 $PublichIPAddress || { echo "Ping failed. Check network access."; exit 1; }
-
+    curl http://$PublicIPAddress:8080/user/find/1
     echo "Making HTTP request..."
-    http_code=$(curl -x "" -s -o /dev/null -w "%{http_code}"  "http://$PublicIPAddress:8080/user/all")
+    http_code=$(curl -x "" -s -o /dev/null -w "%{http_code}"  "http://$PublicIPAddress:8080/user/find/1")
     sleep 30s
     echo "http_code - "$http_code
     
