@@ -17,7 +17,7 @@ if [[ "$PublichIPAddress" != '' ]]; then
     echo "$data"
     echo "after curl"
     echo "Making HTTP request..."
-    http_code=$(curl -x "" -s -o /dev/null -w "%{http_code}"  "http://$PublicIPAddress:8080/user/find/1")
+    http_code=$(curl -x "" -s -o /dev/null -w "%{http_code}"  http://54.163.232.167:8080/user/find/1")
     sleep 30s
     echo "http_code - "$http_code
     
