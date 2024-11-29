@@ -7,7 +7,8 @@ Data=$(aws ec2 describe-instances)
 # echo "Data - "$Data
 PublichIPAddress=$(aws ec2 describe-instances | jq -r ' .Reservations[].Instances[] | select(.Tags[].Value == "dev-deploy") | .PublicIpAddress')
 echo "PublichIPAddress - "$PublichIPAddress
-
+echo "URL"
+echo "http://$PublichIPAddress:8080/user/find/1"
 if [[ "$PublichIPAddress" != '' ]]; then
     echo "Testing connectivity to $PublichIPAddress"
     ping -c 4 $PublichIPAddress || { echo "Ping failed. Check network access."; exit 1; }
