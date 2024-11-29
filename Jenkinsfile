@@ -103,13 +103,9 @@ pipeline{
                 script{
                     sshagent(['dev-deploy-ec2-instance']) {
                         sh  '''
-                            ssh -o StrictHostKeyChecking=no ec2-user@3.140.244.188 "
-                                    if sudo docker ps -a | grep -q "$docker_registry"; then
-                                        echo "Container found. Stopping..."
-                                            sudo docker stop "$docker_registry:$GIT_COMMIT" && sudo docker rm "$docker_registry:$GIT_COMMIT"
-                                        echo "Container stopped and removed."
-                                    fi
-                                    sudo docker run -d -p 8080:8080 "$docker_registry:$GIT_COMMIT"
+                            ssh -o StrictHostKeyChecking=no ec2-user@54.163.232.167 "
+                                    docker ps -aq | xargs -r docker rm -f
+                                    docker run -d -p 8080:8080 "$docker_registry:$GIT_COMMIT"
                                 "
                             '''
                     }
