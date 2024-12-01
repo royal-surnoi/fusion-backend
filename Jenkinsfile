@@ -19,36 +19,40 @@ pipeline{
                 sh 'mvn clean package -DskipTests'
             }
         }
+        stage('Code Analysis and Testing'){
+            parallel{
+                stage('OWASP Dependency Check'){
+                    steps {
+                        dependencyCheck additionalArguments: '''
+                            --scan \'./\' 
+                            --out \'./\'  
+                            --format \'ALL\' 
+                            --disableYarnAudit \
+                            --prettyPrint''',  nvdCredentialsId: 'NVD-API_KEY', odcInstallation: 'OWASP-DepCheck-10'
 
-        stage('OWASP Dependency Check'){
-            steps {
-                dependencyCheck additionalArguments: '''
-                    --scan \'./\' 
-                    --out \'./\'  
-                    --format \'ALL\' 
-                    --disableYarnAudit \
-                    --prettyPrint''',  nvdCredentialsId: 'NVD-API_KEY', odcInstallation: 'OWASP-DepCheck-10'
+                        dependencyCheckPublisher failedTotalCritical: 1, pattern: 'dependency-check-report.xml', stopBuild: false
+                    }
+                }
 
-                dependencyCheckPublisher failedTotalCritical: 1, pattern: 'dependency-check-report.xml', stopBuild: false
-            }
-        }
-
-        stage ("SAST - SonarQube") {
-            // currently skip test cases
-            steps {
-                script {
-                    withSonarQubeEnv(installationName: 'sonarqube', credentialsId: 'sonar-credentials') {
-                    sh '''
-                        mvn clean verify sonar:sonar -DskipTests \
-                            -Dsonar.projectKey=fusion-be \
-                            -Dsonar.projectName='fusion-be' \
-                            -Dsonar.host.url=http://18.212.33.102:9000 \
-                            -Dsonar.token=sqp_1d84741b51a708fcac3ae8f500ce46ad86cf9128
-                    '''
+                stage ("SAST - SonarQube") {
+                    // currently skip test cases
+                    steps {
+                        script {
+                            withSonarQubeEnv(installationName: 'sonarqube', credentialsId: 'sonar-credentials') {
+                            sh '''
+                                mvn clean verify sonar:sonar -DskipTests \
+                                    -Dsonar.projectKey=fusion-be \
+                                    -Dsonar.projectName='fusion-be' \
+                                    -Dsonar.host.url=http://18.212.33.102:9000 \
+                                    -Dsonar.token=sqp_1d84741b51a708fcac3ae8f500ce46ad86cf9128
+                            '''
+                            }
+                        }
                     }
                 }
             }
         }
+        
 
         stage('containerization') {
             steps {
