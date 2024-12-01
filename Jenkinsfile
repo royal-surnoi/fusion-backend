@@ -14,7 +14,7 @@ pipeline{
         disableConcurrentBuilds()
     }
     parameters {
-        booleanParam(name: 'Code Analysis and Dependency check', defaultValue: false, description: 'is it required Code Analysis and Dependency Check')
+        booleanParam(name: 'CodeAnalysisDependencyCheck', defaultValue: false, description: 'is it required Code Analysis and Dependency Check')
         choice(name: 'DeployToStage', choices: ['yes', 'no'], description: 'is it required Deploy to stage')
     }
     stages{
@@ -27,7 +27,7 @@ pipeline{
         stage('Code Analysis and Testing'){
             when {
                 expression{
-                    params.CodeQualityCheck == true
+                    params.CodeAnalysisDependencyCheck == true
                 }
             }
             parallel{
@@ -134,7 +134,7 @@ pipeline{
                 }
             }
             stages {
-                stage('Deploy - AWS EC2') {
+                stage('Deploy - Dev-Stage Instance') {
                     steps {
                         script{
                             // Fetch AWS instance IP
@@ -158,6 +158,7 @@ pipeline{
                         }
                     }   
                 }
+
                 stage('Integration Testing at stage') {
                     steps {
                     sh 'sleep 150s'
