@@ -6,13 +6,13 @@ pipeline{
     environment {
         docker_registry = 'iamroyalreddy/fusion-be'
         DOCKERHUB_CREDENTIALS = credentials('docker-credentials')
-        DEV_STAGE_INSTANCE_IP= ''
         SONAR_SCANNER_HOME = tool name: 'sonarqube'
     }
     options {
         timeout(time: 1, unit: 'HOURS')
         disableResume()
         disableConcurrentBuilds()
+        timestamps()
     }
     parameters {
         booleanParam(name: 'CodeAnalysisDependencyCheck', defaultValue: false, description: 'is it required Code Analysis and Dependency Check')
@@ -132,11 +132,14 @@ pipeline{
             }       
         }
 
-        stage('Deploy to stage') {
+        stage('Deploy to Development') {
             when {
                 expression { 
                     params.DeployToStage == 'yes'
                 }
+            }
+            environment {
+                DEV_STAGE_INSTANCE_IP= ''
             }
             stages {
                 stage('Deploy - Dev-Stage Instance') {
