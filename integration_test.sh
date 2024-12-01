@@ -9,7 +9,7 @@ PublichIPAddress=$(aws ec2 describe-instances | jq -r ' .Reservations[].Instance
 echo "PublichIPAddress - "$PublichIPAddress
 if [[ "$PublichIPAddress" != '' ]]; then
     echo "Testing connectivity to $PublichIPAddress"
-    ping -c 4 $PublichIPAddress || { echo "Ping failed. Check network access."; exit 1; }
+    ping -c 2 $PublichIPAddress || { echo "Ping failed. Check network access."; exit 1; }
     echo "Making HTTP request..."
     http_code=$(curl -x "" -s -o /dev/null -w "%{http_code}"  http://$PublichIPAddress:8080/user/find/1)
     # sleep 30s

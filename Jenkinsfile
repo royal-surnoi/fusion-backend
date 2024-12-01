@@ -167,7 +167,7 @@ pipeline{
                     }   
                 }
 
-                stage('Integration Testing at stage') {
+                stage('Integration Testing in Development') {
                     steps {
                     sh 'sleep 150s'
                     withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
