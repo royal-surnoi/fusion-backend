@@ -7,6 +7,7 @@ pipeline{
         docker_registry = 'iamroyalreddy/fusion-be'
         DOCKERHUB_CREDENTIALS = credentials('docker-credentials')
         DEV_STAGE_INSTANCE_IP= ''
+        SONAR_SCANNER_HOME = tool name: 'sonarqube'
     }
     options {
         timeout(time: 1, unit: 'HOURS')
@@ -49,13 +50,15 @@ pipeline{
                     steps {
                         script {
                             withSonarQubeEnv(installationName: 'sonarqube', credentialsId: 'sonar-credentials') {
-                            sh '''
-                                mvn clean verify sonar:sonar -DskipTests \
-                                    -Dsonar.projectKey=fusion-be \
-                                    -Dsonar.projectName='fusion-be' \
-                                    -Dsonar.host.url=http://18.212.33.102:9000 \
-                                    -Dsonar.token=sqp_1d84741b51a708fcac3ae8f500ce46ad86cf9128
-                            '''
+                                withEnv(["PATH+SONAR=$SONAR_SCANNER_HOME/bin"]) {
+                                sh '''
+                                    mvn clean verify sonar:sonar -DskipTests \
+                                        -Dsonar.projectKey=fusion-be \
+                                        -Dsonar.projectName='fusion-be' \
+                                        -Dsonar.host.url=http://18.212.33.102:9000 \
+                                        // -Dsonar.token=sqp_1d84741b51a708fcac3ae8f500ce46ad86cf9128
+                                '''
+                                }
                             }
                         }
                     }
