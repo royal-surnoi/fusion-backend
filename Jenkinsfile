@@ -6,12 +6,16 @@ pipeline{
     environment {
         docker_registry = 'iamroyalreddy/fusion-be'
         DOCKERHUB_CREDENTIALS = credentials('docker-credentials')
-        DEV_INSTANCE_IP= ''
+        DEV_STAGE_INSTANCE_IP= ''
     }
     options {
         timeout(time: 1, unit: 'HOURS')
         disableResume()
         disableConcurrentBuilds()
+    }
+    parameters {
+        booleanParam(name: 'Code Analysis and Dependency check', defaultValue: false, description: 'is it required Code Analysis and Dependency Check')
+        choice(name: 'DeployToStage', choices: ['yes', 'no'], description: 'is it required Deploy to stage')
     }
     stages{
         stage('Build and Package'){
@@ -19,7 +23,13 @@ pipeline{
                 sh 'mvn clean package -DskipTests'
             }
         }
+
         stage('Code Analysis and Testing'){
+            when {
+                expression{
+                    params.CodeQualityCheck == true
+                }
+            }
             parallel{
                 stage('OWASP Dependency Check'){
                     steps {
@@ -53,7 +63,6 @@ pipeline{
             }
         }
         
-
         stage('containerization') {
             steps {
                 script{
@@ -118,45 +127,51 @@ pipeline{
             }       
         }
 
-        stage('Deploy - AWS EC2') {
-            steps {
-                script{
-                     // Fetch AWS instance IP
-                    withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
-                        DEV_INSTANCE_IP = sh(
-                            script: "aws ec2 describe-instances --query 'Reservations[].Instances[].PublicIpAddress' --filters Name=tag:Name,Values=dev-deploy --output text",
-                            returnStdout: true
-                        ).trim()
-                    }
-                    sshagent(['dev-deploy-ec2-instance']) {
-                        sh """
-                            ssh -o StrictHostKeyChecking=no ec2-user@${DEV_INSTANCE_IP} "
-                                echo "Cleaning up old containers..."
-                                docker ps -aq | xargs -r docker rm -f
-                                echo "Running new Docker container..."
-                                docker run -d -p 8080:8080 ${docker_registry}:${GIT_COMMIT}
-                            "
-                        """
-                    }
-                    
+        stage('Deploy to stage') {
+            when {
+                expression { 
+                    params.DeployToStage == 'yes'
                 }
-            }   
-        }
-
-        stage('Integration Testing - AWS EC2') {
-            steps {
-               sh 'sleep 200s'
-               withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
-                    sh  '''
-                        sh integration_test.sh
-                    '''
+            }
+            stage('Deploy - AWS EC2') {
+                steps {
+                    script{
+                        // Fetch AWS instance IP
+                        withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
+                            DEV_STAGE_INSTANCE_IP = sh(
+                                script: "aws ec2 describe-instances --query 'Reservations[].Instances[].PublicIpAddress' --filters Name=tag:Name,Values=dev-deploy --output text",
+                                returnStdout: true
+                            ).trim()
+                        }
+                        sshagent(['dev-deploy-ec2-instance']) {
+                            sh """
+                                ssh -o StrictHostKeyChecking=no ec2-user@${DEV_STAGE_INSTANCE_IP} "
+                                    echo "Cleaning up old containers..."
+                                    docker ps -aq | xargs -r docker rm -f
+                                    echo "Running new Docker container..."
+                                    docker run -d -p 8080:8080 ${docker_registry}:${GIT_COMMIT}
+                                "
+                            """
+                        }
+                        
+                    }
+                }   
+            }
+            stage('Integration Testing at stage') {
+                steps {
+                sh 'sleep 150s'
+                withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
+                        sh  '''
+                            sh integration_test.sh
+                        '''
+                    }
                 }
             }
         }
     }
 
-        post { 
-            always { 
+    post { 
+        always { 
                 junit allowEmptyResults: true, stdioRetention: '', testResults: 'dependency-check-junit.xml' 
                 junit allowEmptyResults: true, stdioRetention: '', testResults: 'trivy-image-CRITICAL-results.xml'
                 junit allowEmptyResults: true, stdioRetention: '', testResults: 'trivy-image-MEDIUM-results.xml'            
@@ -165,22 +180,22 @@ pipeline{
                 publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-MEDIUM-results.html', reportName: 'Trivy Image Medium Vul Report', reportTitles: '', useWrapperFileDirectly: true])
                 echo "\033[34mJob completed. Cleaning up workspace...\033[0m"
                 deleteDir()
+            }    
+        success {
+            echo "\033[33mPipeline completed successfully. Performing success actions...\033[0m"
+            // Add additional actions here if needed, like sending success notifications
             }
-            success {
-                echo "\033[33mPipeline completed successfully. Performing success actions...\033[0m"
-                // Add additional actions here if needed, like sending success notifications
-            }
-            failure { 
-                echo "\033[35mPipeline failed. Triggering failure response...\033[0m"
-                // send notification
-            }
-            unstable {
-                echo "\033[34mPipeline marked as unstable. Reviewing issues...\033[0m"
-                // Send notification or take action for unstable builds, if needed
-            }
-            aborted {
-                echo "\033[33mPipeline was aborted. Clearing any partial artifacts...\033[0m"
-                // Any specific actions for aborted jobs
-            }
+        failure { 
+            echo "\033[35mPipeline failed. Triggering failure response...\033[0m"
+            // send notification
         }
+        unstable {
+            echo "\033[34mPipeline marked as unstable. Reviewing issues...\033[0m"
+            // Send notification or take action for unstable builds, if needed
+        }
+        aborted {
+            echo "\033[33mPipeline was aborted. Clearing any partial artifacts...\033[0m"
+            // Any specific actions for aborted jobs
+        }    
+    }
 }
