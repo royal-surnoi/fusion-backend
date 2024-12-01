@@ -49,15 +49,17 @@ pipeline{
                     // currently skip test cases
                     steps {
                         script {
-                            withSonarQubeEnv(installationName: 'sonarqube', credentialsId: 'sonar-credentials') {
-                                withEnv(["PATH+SONAR=$SONAR_SCANNER_HOME/bin"]) {
-                                sh '''
-                                    mvn clean verify sonar:sonar -DskipTests \
-                                        -Dsonar.projectKey=fusion-be \
-                                        -Dsonar.projectName='fusion-be' \
-                                        -Dsonar.host.url=http://18.212.33.102:9000 \
-                                        -Dsonar.token=sqp_1d84741b51a708fcac3ae8f500ce46ad86cf9128
-                                '''
+                            withSonarQubeEnv('sonarqube') {
+                                withCredentials([string(credentialsId: 'sonar-credentials', variable: 'SONAR_TOKEN')]){
+                                    withEnv(["PATH+SONAR=$SONAR_SCANNER_HOME/bin"]) {
+                                        sh '''
+                                            mvn clean verify sonar:sonar -DskipTests \
+                                                -Dsonar.projectKey=fusion-be \
+                                                -Dsonar.projectName='fusion-be' \
+                                                -Dsonar.host.url=$SONAR_HOST_URL \
+                                                -Dsonar.token=$SONAR_TOKEN
+                                        '''
+                                    }
                                 }
                             }
                         }
