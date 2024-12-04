@@ -42,7 +42,7 @@ public class FusionIqApplication {
 
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**")
-						.allowedOrigins("http://54.165.131.215")
+						.allowedOrigins("http://3.93.191.129")
 						.allowedMethods("GET", "POST", "PUT", "DELETE","PATCH")
 						.allowedHeaders("*");
 			}
