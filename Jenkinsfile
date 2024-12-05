@@ -155,8 +155,8 @@ pipeline{
                             sshagent(['dev-deploy-ec2-instance']) {
                                 sh """
                                     ssh -o StrictHostKeyChecking=no ec2-user@${DEV_STAGE_INSTANCE_IP} "
-                                        echo "Cleaning up old containers..."
-                                        docker ps -aq | xargs -r docker rm -f
+                                        // echo "Cleaning up old containers..."
+                                        // docker ps -aq | xargs -r docker rm -f
                                         echo "Running new Docker container..."
                                         docker run -d -p 8080:8080 ${docker_registry}:${GIT_COMMIT}
                                     "
