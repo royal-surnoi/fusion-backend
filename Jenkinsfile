@@ -144,14 +144,13 @@ pipeline{
             stages {
                 stage('initialize-Dev-Stage Instance') {
                     steps{
-                        dir('/var/lib/jenkins/workspace/fusion/Fusion-Frontend/terrafrom'){
+                        dir('/var/lib/jenkins/workspace/fusion/Fusion-Frontend/terraform'){
                             sh '''
                                 set -e
                                 echo "Initializing Terraform..."
                                 terraform init
                                 echo "Applying Terraform configuration..."
-                                terraform destroy --auto-approve
-                                sleep 40s
+                                terraform plan
                             '''
                         }
                     }

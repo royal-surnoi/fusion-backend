@@ -9,14 +9,14 @@ resource "aws_instance" "development-instance" {
 
 
 resource "aws_key_pair" "deployer" {
-  key_name   = "fusion_backend"
+  key_name   = "Fusion_Backend_KP"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC9k7YLrxoLFcqCv+V/4ACpAy84gwOrBp2yqBOOuSGVBNl05TvCY7CkfpcmCVJdmenj6RUe5oSiQFATuhvqEnJsRkLIS/+Mf0t5KgUo+WjBpcLwDTyShsujA59qE4VbLMmXdAnCqnYnKT79KIndFafaGpnuxoep1JK07TatC1sm5ccPmgsIpAIOf0OxeWBfsodBX24qoQWh2oxDgEJX5ixPRNKBqgBkLNjp2vkt4ZlE1tNap28w8AdvHc9EIxVeWyoMohdL5yJyH4c7D9LYyYwml3t7PPWZSoL/9kdPadvqyywcEjtfE9VDfd+i9BadVtzj2v3dH+RJeiMOeIhhASxt Royal_Emp_1158"
 
 }
 
 resource "aws_security_group" "dev-stage-sg" {
     name        = "DevelopmentBackend-sg"
-    description = "Allow SSH,HTTP,HTTPS and 8080 inbound traffic and all outbound traffic"
+    description = "Allow SSH,HTTP,80 and 8080 inbound traffic and all outbound traffic"
     tags = var.tags
 }
 
@@ -41,14 +41,6 @@ resource "aws_vpc_security_group_ingress_rule" "allow_HTTPS_ipv4" {
   from_port         = 443
   ip_protocol       = "tcp"
   to_port           = 443
-}
-
-resource "aws_vpc_security_group_ingress_rule" "allow_icmp" {
-  security_group_id = aws_security_group.dev-stage-sg.id
-  cidr_ipv4         = var.cidr_blocks
-  from_port         = -1
-  ip_protocol       = "icmp"
-  to_port           = -1
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow_8080_ipv4" {
