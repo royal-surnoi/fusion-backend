@@ -142,44 +142,44 @@ pipeline{
                 DEV_STAGE_INSTANCE_IP= ''
             }
             stages {
-                // stage('initialize-Dev-Stage Instance') {
-                //     steps{
-                //         dir('/var/lib/jenkins/workspace/fusion/Fusion-Frontend/terrafrom'){
-                //             sh '''
-                //                 set -e
-                //                 echo "Initializing Terraform..."
-                //                 terraform init
-                //                 echo "Applying Terraform configuration..."
-                //                 terraform destroy --auto-approve
-                //                 sleep 40s
-                //             '''
-                //         }
-                //     }
-                // }
-                stage('Deploy - Dev-Stage Instance') {
-                    steps {
-                        script{
-                            // Fetch AWS instance IP
-                            withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
-                                DEV_STAGE_INSTANCE_IP = sh(
-                                    script: "aws ec2 describe-instances --query 'Reservations[].Instances[].PublicIpAddress' --filters Name=tag:Name,Values=DevelopmentServer --output text",
-                                    returnStdout: true
-                                ).trim()
-                            }
-                            sshagent(['dev-deploy-ec2-instance']) {
-                                sh """
-                                    ssh -o StrictHostKeyChecking=no ec2-user@${DEV_STAGE_INSTANCE_IP} "
-                                        // echo "Cleaning up old containers..."
-                                        // docker ps -aq | xargs -r docker rm -f
-                                        echo "Running new Docker container..."
-                                        docker run -d -p 8080:8080 ${docker_registry}:${GIT_COMMIT}
-                                    "
-                                """
-                            }
-                            
+                stage('initialize-Dev-Stage Instance') {
+                    steps{
+                        dir('/var/lib/jenkins/workspace/fusion/Fusion-Frontend/terrafrom'){
+                            sh '''
+                                set -e
+                                echo "Initializing Terraform..."
+                                terraform init
+                                echo "Applying Terraform configuration..."
+                                // terraform destroy --auto-approve
+                                // sleep 40s
+                            '''
                         }
-                    }   
+                    }
                 }
+                // stage('Deploy - Dev-Stage Instance') {
+                //     steps {
+                //         script{
+                //             // Fetch AWS instance IP
+                //             withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
+                //                 DEV_STAGE_INSTANCE_IP = sh(
+                //                     script: "aws ec2 describe-instances --query 'Reservations[].Instances[].PublicIpAddress' --filters Name=tag:Name,Values=DevelopmentServer --output text",
+                //                     returnStdout: true
+                //                 ).trim()
+                //             }
+                //             sshagent(['dev-deploy-ec2-instance']) {
+                //                 sh """
+                //                     ssh -o StrictHostKeyChecking=no ec2-user@${DEV_STAGE_INSTANCE_IP} "
+                //                         // echo "Cleaning up old containers..."
+                //                         // docker ps -aq | xargs -r docker rm -f
+                //                         echo "Running new Docker container..."
+                //                         docker run -d -p 8080:8080 ${docker_registry}:${GIT_COMMIT}
+                //                     "
+                //                 """
+                //             }
+                            
+                //         }
+                //     }   
+                // }
 
                 // stage('Integration Testing in Development') {
                 //     steps {
