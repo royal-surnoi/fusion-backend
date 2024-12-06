@@ -9,14 +9,14 @@ resource "aws_instance" "development-instance" {
 
 
 resource "aws_key_pair" "deployer" {
-  key_name   = "Royal_Emp"
+  key_name   = "fusion_backend"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC9k7YLrxoLFcqCv+V/4ACpAy84gwOrBp2yqBOOuSGVBNl05TvCY7CkfpcmCVJdmenj6RUe5oSiQFATuhvqEnJsRkLIS/+Mf0t5KgUo+WjBpcLwDTyShsujA59qE4VbLMmXdAnCqnYnKT79KIndFafaGpnuxoep1JK07TatC1sm5ccPmgsIpAIOf0OxeWBfsodBX24qoQWh2oxDgEJX5ixPRNKBqgBkLNjp2vkt4ZlE1tNap28w8AdvHc9EIxVeWyoMohdL5yJyH4c7D9LYyYwml3t7PPWZSoL/9kdPadvqyywcEjtfE9VDfd+i9BadVtzj2v3dH+RJeiMOeIhhASxt Royal_Emp_1158"
 
 }
 
 resource "aws_security_group" "dev-stage-sg" {
-    name        = "DevelopmentServer-sg"
-    description = "Allow SSH,HTTP,80 and 8080 inbound traffic and all outbound traffic"
+    name        = "DevelopmentBackend-sg"
+    description = "Allow SSH,HTTP,HTTPS and 8080 inbound traffic and all outbound traffic"
     tags = var.tags
 }
 

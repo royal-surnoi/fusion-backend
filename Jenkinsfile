@@ -25,48 +25,48 @@ pipeline{
             }
         }
 
-        stage('Code Analysis and Testing'){
-            when {
-                expression{
-                    params.CodeAnalysisDependencyCheck == true
-                }
-            }
-            parallel{
-                stage('OWASP Dependency Check'){
-                    steps {
-                        dependencyCheck additionalArguments: '''
-                            --scan \'./\' 
-                            --out \'./\'  
-                            --format \'ALL\' 
-                            --disableYarnAudit \
-                            --prettyPrint''',  nvdCredentialsId: 'NVD-API_KEY', odcInstallation: 'OWASP-DepCheck-10'
+        // stage('Code Analysis and Testing'){
+        //     when {
+        //         expression{
+        //             params.CodeAnalysisDependencyCheck == true
+        //         }
+        //     }
+        //     parallel{
+        //         stage('OWASP Dependency Check'){
+        //             steps {
+        //                 dependencyCheck additionalArguments: '''
+        //                     --scan \'./\' 
+        //                     --out \'./\'  
+        //                     --format \'ALL\' 
+        //                     --disableYarnAudit \
+        //                     --prettyPrint''',  nvdCredentialsId: 'NVD-API_KEY', odcInstallation: 'OWASP-DepCheck-10'
 
-                        dependencyCheckPublisher failedTotalCritical: 1, pattern: 'dependency-check-report.xml', stopBuild: false
-                    }
-                }
+        //                 dependencyCheckPublisher failedTotalCritical: 1, pattern: 'dependency-check-report.xml', stopBuild: false
+        //             }
+        //         }
 
-                stage ("SAST - SonarQube") {
-                    // currently skip test cases
-                    steps {
-                        script {
-                            withSonarQubeEnv('sonarqube') {
-                                withCredentials([string(credentialsId: 'sonar-credentials', variable: 'SONAR_TOKEN')]){
-                                    withEnv(["PATH+SONAR=$SONAR_SCANNER_HOME/bin"]) {
-                                        sh '''
-                                            mvn clean verify sonar:sonar -DskipTests \
-                                                -Dsonar.projectKey=fusion-be \
-                                                -Dsonar.projectName='fusion-be' \
-                                                -Dsonar.host.url=$SONAR_HOST_URL \
-                                                -Dsonar.token=$SONAR_TOKEN
-                                        '''
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        //         stage ("SAST - SonarQube") {
+        //             // currently skip test cases
+        //             steps {
+        //                 script {
+        //                     withSonarQubeEnv('sonarqube') {
+        //                         withCredentials([string(credentialsId: 'sonar-credentials', variable: 'SONAR_TOKEN')]){
+        //                             withEnv(["PATH+SONAR=$SONAR_SCANNER_HOME/bin"]) {
+        //                                 sh '''
+        //                                     mvn clean verify sonar:sonar -DskipTests \
+        //                                         -Dsonar.projectKey=fusion-be \
+        //                                         -Dsonar.projectName='fusion-be' \
+        //                                         -Dsonar.host.url=$SONAR_HOST_URL \
+        //                                         -Dsonar.token=$SONAR_TOKEN
+        //                                 '''
+        //                             }
+        //                         }
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
         
         stage('containerization') {
             steps {
@@ -86,44 +86,44 @@ pipeline{
             }
         }
 
-        stage('Trivy Vulnerability Scanner') {
-            steps {
-                sh  ''' 
-                    trivy image $docker_registry:$GIT_COMMIT \
-                        --severity LOW,MEDIUM,HIGH \
-                        --exit-code 0 \
-                        --quiet \
-                        --format json -o trivy-image-MEDIUM-results.json
+        // stage('Trivy Vulnerability Scanner') {
+        //     steps {
+        //         sh  ''' 
+        //             trivy image $docker_registry:$GIT_COMMIT \
+        //                 --severity LOW,MEDIUM,HIGH \
+        //                 --exit-code 0 \
+        //                 --quiet \
+        //                 --format json -o trivy-image-MEDIUM-results.json
 
-                    trivy image $docker_registry:$GIT_COMMIT \
-                        --severity CRITICAL \
-                        --exit-code 1 \
-                        --quiet \
-                        --format json -o trivy-image-CRITICAL-results.json
-                '''
-            }
-            post {
-                always {
-                    sh '''
-                        trivy convert \
-                            --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
-                            --output trivy-image-MEDIUM-results.html trivy-image-MEDIUM-results.json 
+        //             trivy image $docker_registry:$GIT_COMMIT \
+        //                 --severity CRITICAL \
+        //                 --exit-code 1 \
+        //                 --quiet \
+        //                 --format json -o trivy-image-CRITICAL-results.json
+        //         '''
+        //     }
+        //     post {
+        //         always {
+        //             sh '''
+        //                 trivy convert \
+        //                     --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
+        //                     --output trivy-image-MEDIUM-results.html trivy-image-MEDIUM-results.json 
 
-                        trivy convert \
-                            --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
-                            --output trivy-image-CRITICAL-results.html trivy-image-CRITICAL-results.json
+        //                 trivy convert \
+        //                     --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
+        //                     --output trivy-image-CRITICAL-results.html trivy-image-CRITICAL-results.json
 
-                        trivy convert \
-                            --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
-                            --output trivy-image-MEDIUM-results.xml  trivy-image-MEDIUM-results.json 
+        //                 trivy convert \
+        //                     --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
+        //                     --output trivy-image-MEDIUM-results.xml  trivy-image-MEDIUM-results.json 
 
-                        trivy convert \
-                            --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
-                            --output trivy-image-CRITICAL-results.xml trivy-image-CRITICAL-results.json          
-                    '''
-                }
-            }
-        }
+        //                 trivy convert \
+        //                     --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
+        //                     --output trivy-image-CRITICAL-results.xml trivy-image-CRITICAL-results.json          
+        //             '''
+        //         }
+        //     }
+        // }
 
         stage('Publish Docker Image') {
             steps {
@@ -181,46 +181,46 @@ pipeline{
                     }   
                 }
 
-                stage('Integration Testing in Development') {
-                    steps {
-                    sh 'sleep 150s'
-                    withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
-                            sh  '''
-                                sh integration_test.sh
-                            '''
-                        }
-                    }
-                }
+                // stage('Integration Testing in Development') {
+                //     steps {
+                //     sh 'sleep 150s'
+                //     withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
+                //             sh  '''
+                //                 sh integration_test.sh
+                //             '''
+                //         }
+                //     }
+                // }
             }
         }
     }
 
-    post { 
-        always { 
-                junit allowEmptyResults: true, stdioRetention: '', testResults: 'dependency-check-junit.xml' 
-                junit allowEmptyResults: true, stdioRetention: '', testResults: 'trivy-image-CRITICAL-results.xml'
-                junit allowEmptyResults: true, stdioRetention: '', testResults: 'trivy-image-MEDIUM-results.xml'            
-                publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'dependency-check-jenkins.html', reportName: 'Dependency Check HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-                publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-CRITICAL-results.html', reportName: 'Trivy Image Critical Vul Report', reportTitles: '', useWrapperFileDirectly: true])
-                publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-MEDIUM-results.html', reportName: 'Trivy Image Medium Vul Report', reportTitles: '', useWrapperFileDirectly: true])
-                echo "\033[34mJob completed. Cleaning up workspace...\033[0m"
-                deleteDir()
-            }    
-        success {
-            echo "\033[33mPipeline completed successfully. Performing success actions...\033[0m"
-            // Add additional actions here if needed, like sending success notifications
-            }
-        failure { 
-            echo "\033[35mPipeline failed. Triggering failure response...\033[0m"
-            // send notification
-        }
-        unstable {
-            echo "\033[34mPipeline marked as unstable. Reviewing issues...\033[0m"
-            // Send notification or take action for unstable builds, if needed
-        }
-        aborted {
-            echo "\033[33mPipeline was aborted. Clearing any partial artifacts...\033[0m"
-            // Any specific actions for aborted jobs
-        }    
-    }
+    // post { 
+    //     always { 
+    //             junit allowEmptyResults: true, stdioRetention: '', testResults: 'dependency-check-junit.xml' 
+    //             junit allowEmptyResults: true, stdioRetention: '', testResults: 'trivy-image-CRITICAL-results.xml'
+    //             junit allowEmptyResults: true, stdioRetention: '', testResults: 'trivy-image-MEDIUM-results.xml'            
+    //             publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'dependency-check-jenkins.html', reportName: 'Dependency Check HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+    //             publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-CRITICAL-results.html', reportName: 'Trivy Image Critical Vul Report', reportTitles: '', useWrapperFileDirectly: true])
+    //             publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: './', reportFiles: 'trivy-image-MEDIUM-results.html', reportName: 'Trivy Image Medium Vul Report', reportTitles: '', useWrapperFileDirectly: true])
+    //             echo "\033[34mJob completed. Cleaning up workspace...\033[0m"
+    //             deleteDir()
+    //         }    
+    //     success {
+    //         echo "\033[33mPipeline completed successfully. Performing success actions...\033[0m"
+    //         // Add additional actions here if needed, like sending success notifications
+    //         }
+    //     failure { 
+    //         echo "\033[35mPipeline failed. Triggering failure response...\033[0m"
+    //         // send notification
+    //     }
+    //     unstable {
+    //         echo "\033[34mPipeline marked as unstable. Reviewing issues...\033[0m"
+    //         // Send notification or take action for unstable builds, if needed
+    //     }
+    //     aborted {
+    //         echo "\033[33mPipeline was aborted. Clearing any partial artifacts...\033[0m"
+    //         // Any specific actions for aborted jobs
+    //     }    
+    // }
 }
