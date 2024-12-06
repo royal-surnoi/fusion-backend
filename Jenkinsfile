@@ -150,7 +150,7 @@ pipeline{
                                 echo "Initializing Terraform..."
                                 terraform init -reconfigure
                                 echo "Applying Terraform configuration..."
-                                terraform destroy --auto-approve
+                                terraform apply --auto-approve
                             '''
                         }
                     }
