@@ -142,20 +142,20 @@ pipeline{
                 DEV_STAGE_INSTANCE_IP= ''
             }
             stages {
-                stage('initialize-Dev-Stage Instance') {
-                    steps{
-                        dir('/var/lib/jenkins/workspace/fusion/Fusion-Frontend/terrafrom'){
-                            sh '''
-                                set -e
-                                echo "Initializing Terraform..."
-                                terraform init
-                                echo "Applying Terraform configuration..."
-                                terraform destroy --auto-approve
-                                sleep 40s
-                            '''
-                        }
-                    }
-                }
+                // stage('initialize-Dev-Stage Instance') {
+                //     steps{
+                //         dir('/var/lib/jenkins/workspace/fusion/Fusion-Frontend/terrafrom'){
+                //             sh '''
+                //                 set -e
+                //                 echo "Initializing Terraform..."
+                //                 terraform init
+                //                 echo "Applying Terraform configuration..."
+                //                 terraform destroy --auto-approve
+                //                 sleep 40s
+                //             '''
+                //         }
+                //     }
+                // }
                 stage('Deploy - Dev-Stage Instance') {
                     steps {
                         script{
