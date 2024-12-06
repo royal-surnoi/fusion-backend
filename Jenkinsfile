@@ -148,7 +148,7 @@ pipeline{
                             sh '''
                                 set -e
                                 echo "Initializing Terraform..."
-                                terraform init
+                                terraform init -reconfigure
                                 echo "Applying Terraform configuration..."
                                 terraform plan
                             '''
