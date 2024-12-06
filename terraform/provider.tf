@@ -8,7 +8,7 @@ terraform {
   backend "s3" {
     bucket = "fusion-iac-backend-royal"
     key    = "my-practice"
-    region = "ap-south-1"
+    region = "us-east-1"
     dynamodb_table = "tflock"
   }
 }
