@@ -150,46 +150,46 @@ pipeline{
                                 echo "Initializing Terraform..."
                                 terraform init -reconfigure
                                 echo "Applying Terraform configuration..."
-                                terraform plan
+                                terraform apply --auto-approve
                             '''
                         }
                     }
                 }
-                // stage('Deploy - Dev-Stage Instance') {
-                //     steps {
-                //         script{
-                //             // Fetch AWS instance IP
-                //             withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
-                //                 DEV_STAGE_INSTANCE_IP = sh(
-                //                     script: "aws ec2 describe-instances --query 'Reservations[].Instances[].PublicIpAddress' --filters Name=tag:Name,Values=DevelopmentServer --output text",
-                //                     returnStdout: true
-                //                 ).trim()
-                //             }
-                //             sshagent(['dev-deploy-ec2-instance']) {
-                //                 sh """
-                //                     ssh -o StrictHostKeyChecking=no ec2-user@${DEV_STAGE_INSTANCE_IP} "
-                //                         // echo "Cleaning up old containers..."
-                //                         // docker ps -aq | xargs -r docker rm -f
-                //                         echo "Running new Docker container..."
-                //                         docker run -d -p 8080:8080 ${docker_registry}:${GIT_COMMIT}
-                //                     "
-                //                 """
-                //             }
+                stage('Deploy - Dev-Stage Instance') {
+                    steps {
+                        script{
+                            // Fetch AWS instance IP
+                            withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
+                                DEV_STAGE_INSTANCE_IP = sh(
+                                    script: "aws ec2 describe-instances --query 'Reservations[].Instances[].PublicIpAddress' --filters Name=tag:Name,Values=DevelopmentServer --output text",
+                                    returnStdout: true
+                                ).trim()
+                            }
+                            sshagent(['dev-deploy-ec2-instance']) {
+                                sh """
+                                    ssh -o StrictHostKeyChecking=no ec2-user@${DEV_STAGE_INSTANCE_IP} "
+                                        // echo "Cleaning up old containers..."
+                                        // docker ps -aq | xargs -r docker rm -f
+                                        echo "Running new Docker container..."
+                                        docker run -d -p 8080:8080 ${docker_registry}:${GIT_COMMIT}
+                                    "
+                                """
+                            }
                             
-                //         }
-                //     }   
-                // }
+                        }
+                    }   
+                }
 
-                // stage('Integration Testing in Development') {
-                //     steps {
-                //     sh 'sleep 150s'
-                //     withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
-                //             sh  '''
-                //                 sh integration_test.sh
-                //             '''
-                //         }
-                //     }
-                // }
+                stage('Integration Testing in Development') {
+                    steps {
+                    sh 'sleep 150s'
+                    withAWS(credentials: 'aws-fusion-dev-deploy', region: 'us-east-1') {
+                            sh  '''
+                                sh integration_test.sh
+                            '''
+                        }
+                    }
+                }
             }
         }
     }
