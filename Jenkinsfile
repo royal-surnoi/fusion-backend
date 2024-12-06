@@ -144,7 +144,7 @@ pipeline{
             stages {
                 stage('initialize-Dev-Stage Instance') {
                     steps{
-                        dir('/var/lib/jenkins/workspace/fusion/Fusion-Frontend/terraform'){
+                        dir('/var/lib/jenkins/workspace/fusion/Fusion-Backend/terraform'){
                             sh '''
                                 set -e
                                 echo "Initializing Terraform..."
