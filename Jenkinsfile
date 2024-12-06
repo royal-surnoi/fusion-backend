@@ -150,7 +150,7 @@ pipeline{
                                 echo "Initializing Terraform..."
                                 terraform init
                                 echo "Applying Terraform configuration..."
-                                terraform apply --auto-approve
+                                terraform destroy --auto-approve
                                 sleep 40s
                             '''
                         }
