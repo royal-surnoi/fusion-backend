@@ -6,7 +6,7 @@ terraform {
     }
   }
   backend "s3" {
-    bucket = "fusion-iac-backend-royal"
+    bucket = "fusion-iac-frontend-royal"
     key    = "LockID"
     region = "us-east-1"
     dynamodb_table = "tflock"
