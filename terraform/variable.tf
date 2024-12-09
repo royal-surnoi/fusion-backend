@@ -11,7 +11,7 @@ variable "instance_type" {
 variable "tags" {
     type = map
     default = {
-        Name = "DevelopmentBackendServer"
+        Name = "Dev-Backend-Server"
         Application = "FusionIQ"
         Envronment  = "Development"
         Owner       = "DevOpsTeam"
