@@ -122,11 +122,6 @@ pipeline{
         }
 
         stage('Deploy to Development') {
-            when {
-                expression { 
-                    params.DeployToStage == 'yes'
-                }
-            }
             environment {
                 DEV_STAGE_INSTANCE_IP= ''
             }
