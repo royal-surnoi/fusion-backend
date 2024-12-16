@@ -17,6 +17,7 @@ pipeline{
         stage ("SAST - SonarQube") {
                     // currently skip test cases
                     steps {
+                        dir('/var/lib/jenkins/workspace/fusionIQ/Fusion-Backend'){
                         script {
                             withSonarQubeEnv('sonarqube') {
                                 withCredentials([string(credentialsId: 'sonar-be-credentials', variable: 'SONAR_TOKEN')]){
@@ -30,6 +31,7 @@ pipeline{
                                         '''
                                     }
                                 }
+                            }
                             }
                         }
                     }
