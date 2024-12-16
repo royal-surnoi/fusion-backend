@@ -27,7 +27,7 @@ pipeline{
                                                     -Dsonar.projectKey=fusion-be \
                                                     -Dsonar.projectName='fusion-be' \
                                                     -Dsonar.host.url=$SONAR_HOST_URL \
-                                                    -Dsonar.token=$SONAR_TOKEN
+                                                    -Dsonar.token=sqp_b7aebd07ec5f31496a895c5814470f79207c2b72
                                             '''
                                         }
                                     }
