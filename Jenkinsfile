@@ -19,7 +19,7 @@ pipeline{
                     steps {
                         script {
                             withSonarQubeEnv('sonarqube') {
-                                withCredentials([string(credentialsId: 'sonar-fe-credentials', variable: 'SONAR_TOKEN')]){
+                                withCredentials([string(credentialsId: 'sonar-be-credentials', variable: 'SONAR_TOKEN')]){
                                     withEnv(["PATH+SONAR=$SONAR_SCANNER_HOME/bin"]) {
                                         sh '''
                                             mvn clean verify sonar:sonar -DskipTests \
