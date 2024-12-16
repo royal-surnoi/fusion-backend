@@ -18,12 +18,14 @@ pipeline{
                     // currently skip test cases
                         steps {
                             dir('/var/lib/jenkins/workspace/fusionIQ/Fusion-Backend'){
-                                sh '''
-                                    mvn clean verify sonar:sonar \
-                                        -Dsonar.projectKey=fusion-be \
-                                        -Dsonar.host.url=http://54.90.107.237:9000 \
-                                        -Dsonar.login=sqp_23cf9273aef4580e8aad217624d1773459c144d9
-                                '''
+                                 script {
+                                    sh '''
+                                        mvn clean verify sonar:sonar \
+                                            -Dsonar.projectKey=fusion-be \
+                                            -Dsonar.host.url=http://54.90.107.237:9000 \
+                                            -Dsonar.login=sqp_23cf9273aef4580e8aad217624d1773459c144d9
+                                    '''
+                                 }
                             // script {
                             //     withSonarQubeEnv('sonarqube') {
                             //         withCredentials([string(credentialsId: 'sonar-fe-credentials', variable: 'SONAR_TOKEN')]){
