@@ -18,21 +18,27 @@ pipeline{
                     // currently skip test cases
                         steps {
                             dir('/var/lib/jenkins/workspace/fusionIQ/Fusion-Backend'){
-                            script {
-                                withSonarQubeEnv('sonarqube') {
-                                    withCredentials([string(credentialsId: 'sonar-be-credentials', variable: 'SONAR_TOKEN')]){
-                                        withEnv(["PATH+SONAR=$SONAR_SCANNER_HOME/bin"]) {
-                                            sh '''
-                                                mvn clean verify sonar:sonar -DskipTests \
-                                                    -Dsonar.projectKey=fusion-be \
-                                                    -Dsonar.projectName='fusion-be' \
-                                                    -Dsonar.host.url=$SONAR_HOST_URL \
-                                                    -Dsonar.token=sqp_b7aebd07ec5f31496a895c5814470f79207c2b72
-                                            '''
-                                        }
-                                    }
-                                }
-                            }
+                                sh '''
+                                    mvn clean verify sonar:sonar \
+                                        -Dsonar.projectKey=fusion-be \
+                                        -Dsonar.host.url=http://54.90.107.237:9000 \
+                                        -Dsonar.login=sqp_23cf9273aef4580e8aad217624d1773459c144d9
+                                '''
+                            // script {
+                            //     withSonarQubeEnv('sonarqube') {
+                            //         withCredentials([string(credentialsId: 'sonar-fe-credentials', variable: 'SONAR_TOKEN')]){
+                            //             withEnv(["PATH+SONAR=$SONAR_SCANNER_HOME/bin"]) {
+                            //                 sh '''
+                            //                     mvn clean verify sonar:sonar -DskipTests \
+                            //                         -Dsonar.projectKey=fusion-be \
+                            //                         -Dsonar.projectName='fusion-be' \
+                            //                         -Dsonar.host.url=$SONAR_HOST_URL \
+                            //                         -Dsonar.token=$SONAR_TOKEN
+                            //                 '''
+                            //             }
+                            //         }
+                            //     }
+                            // }
                         }
                     }
                 }
