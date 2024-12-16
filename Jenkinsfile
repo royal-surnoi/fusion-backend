@@ -3,17 +3,37 @@ pipeline{
     tools{
         maven 'maven-3.9.8'
     }
-    // environment {
-    //     docker_registry = 'iamroyalreddy/fusion-be'
-    //     DOCKERHUB_CREDENTIALS = credentials('docker-credentials')
-    // }
+    environment {
+        // docker_registry = 'iamroyalreddy/fusion-be'
+        // DOCKERHUB_CREDENTIALS = credentials('docker-credentials')
+        SONAR_SCANNER_HOME = tool name: 'sonarqube'
+    }
     stages{
         stage('Build and Package'){
             steps{
                 sh 'mvn clean package -DskipTests'
             }
         }
-
+        stage ("SAST - SonarQube") {
+                    // currently skip test cases
+                    steps {
+                        script {
+                            withSonarQubeEnv('sonarqube') {
+                                withCredentials([string(credentialsId: 'sonar-credentials', variable: 'SONAR_TOKEN')]){
+                                    withEnv(["PATH+SONAR=$SONAR_SCANNER_HOME/bin"]) {
+                                        sh '''
+                                            mvn clean verify sonar:sonar -DskipTests \
+                                                -Dsonar.projectKey=fusion-be \
+                                                -Dsonar.projectName='fusion-be' \
+                                                -Dsonar.host.url=$SONAR_HOST_URL \
+                                                -Dsonar.token=$SONAR_TOKEN
+                                        '''
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
         // stage('Code Analysis and Testing'){
         //     when {
         //         expression{
@@ -34,26 +54,7 @@ pipeline{
         //             }
         //         }
 
-        //         stage ("SAST - SonarQube") {
-        //             // currently skip test cases
-        //             steps {
-        //                 script {
-        //                     withSonarQubeEnv('sonarqube') {
-        //                         withCredentials([string(credentialsId: 'sonar-credentials', variable: 'SONAR_TOKEN')]){
-        //                             withEnv(["PATH+SONAR=$SONAR_SCANNER_HOME/bin"]) {
-        //                                 sh '''
-        //                                     mvn clean verify sonar:sonar -DskipTests \
-        //                                         -Dsonar.projectKey=fusion-be \
-        //                                         -Dsonar.projectName='fusion-be' \
-        //                                         -Dsonar.host.url=$SONAR_HOST_URL \
-        //                                         -Dsonar.token=$SONAR_TOKEN
-        //                                 '''
-        //                             }
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         }
+                
         //     }
         // }
         
