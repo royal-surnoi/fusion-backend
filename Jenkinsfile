@@ -20,10 +20,10 @@ pipeline{
                             dir('/var/lib/jenkins/workspace/fusionIQ/Fusion-Backend'){
                                  script {
                                     sh '''
-                                        mvn clean verify sonar:sonar -DskipTests \
-                                            -Dsonar.projectKey=fusion-be \
-                                            -Dsonar.host.url=http://54.90.107.237:9000 \
-                                            -Dsonar.login=sqp_23cf9273aef4580e8aad217624d1773459c144d9
+                                        mvn clean verify sonar:sonar \
+                                        -Dsonar.projectKey=fusion-be \
+                                        -Dsonar.host.url=http://54.90.107.237:9000 \
+                                        -Dsonar.login=sqp_8ec4ffbcbf43d7d06aa0a8f1736c7f0237659ed1
                                     '''
                                  }
                             // script {
