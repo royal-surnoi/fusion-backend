@@ -23,9 +23,14 @@ pipeline{
                                         -Dsonar.host.url=http://3.85.120.238:9000 \
                                         -Dsonar.login=sqp_fa932886fca17cdbb24fe701faba574c192b1bba
                                     '''
-                                 }
                         }
                     }
                 }
+        }
+        stage('push to s3') {
+            steps{
+                sh 'aws s3 cp /var/lib/jenkins/workspace/fusionIQ/Fusion-Backend/target/fusionIq-0.0.1-SNAPSHOT.jar s3://fusioniq-v3-be/'
+            }
+        }
     }
 }
